@@ -1,0 +1,1 @@
+# vimcolorschemes/extractor.nvim
