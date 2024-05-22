@@ -1,8 +1,9 @@
-local Color = require("lua.extractor.util.color")
+local Color = require("extractor.util.color")
 
 local M = {}
 
-function M.hello_world()
+function M.init()
+  print("Color test")
   print(Color.is_hex_color_light("#ffffff"))
   print(Color.is_hex_color_light("#000000"))
 end
