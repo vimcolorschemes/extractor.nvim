@@ -1,0 +1,17 @@
+name: Generate vimdoc
+
+on: [push]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    name: README to vimdoc
+    steps:
+      - uses: actions/checkout@v2
+      - uses: kdheepak/panvimdoc@main
+        with:
+          vimdoc: extractor.nvim
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "docs: Generate doc/extractor.nvim.txt"
+          branch: ${{ github.head_ref }}
