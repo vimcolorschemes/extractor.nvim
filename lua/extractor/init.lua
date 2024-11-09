@@ -10,7 +10,7 @@ local M = {}
 --- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
 --- @return table The extracted color groups.
 function M.run(output_path, background)
-  M.setup(background)
+  M.setup()
 
   print(
     "Extracting color groups..."
@@ -57,14 +57,28 @@ function M.run(output_path, background)
 
   print(json)
 
+  M.post_setup()
+
   return color_groups
 end
 
 --- Sets up the environment for the extractor.
-function M.setup(background)
+function M.setup()
   vim.cmd("syntax on")
   vim.o.termguicolors = true
-  vim.o.background = background or "dark"
+
+  -- disable treesitter highlighting
+  if vim.fn.exists(":TSBufDisable") == 2 then
+    vim.cmd("TSBufDisable highlight")
+  end
+end
+
+-- Post setup actions.
+function M.post_setup()
+  -- enable treesitter highlighting again
+  if vim.fn.exists(":TSBufEnable") == 2 then
+    vim.cmd("TSBufEnable highlight")
+  end
 end
 
 return M
