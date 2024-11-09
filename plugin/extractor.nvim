@@ -1,1 +1,1 @@
-command! -nargs=* Extractor lua require('extractor').run()
+command! -nargs=* Extractor lua require('extractor').run(<f-args>)
