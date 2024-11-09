@@ -86,4 +86,10 @@ function M.get_color_group_value(color_group_name, attribute)
   return color_group_value
 end
 
+--- Return the name of the current colorscheme.
+--- @return string colorscheme_name The name of the current colorscheme.
+function M.get_colorscheme_name()
+  return vim.g.colors_name
+end
+
 return M

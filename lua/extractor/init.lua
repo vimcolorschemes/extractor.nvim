@@ -10,6 +10,11 @@ local M = {}
 --- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
 --- @return table The extracted color groups.
 function M.run(output_path, background)
+  local colorscheme_name = Vim.get_colorscheme_name()
+  if not colorscheme_name or colorscheme_name == "default" then
+    error("Colorscheme failed to configure.")
+  end
+
   local color_group_names = Vim.get_color_group_names_in_buffer()
   Table.insert_many(color_group_names, "StatusLine", "Cursor", "LineNr", "CursorLine", "CursorLineNr")
 
@@ -17,11 +22,11 @@ function M.run(output_path, background)
   local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
 
   if background == "light" and not Color.is_light(normal_bg_color_value) then
-    error("The background of the colorscheme is not light.")
+    error("The background of the colorscheme is not light as expected.")
   end
 
   if background == "dark" and Color.is_light(normal_bg_color_value) then
-    error("The background of the colorscheme is not dark.")
+    error("The background of the colorscheme is not dark as expected.")
   end
 
   local color_groups = { { name = "Normal", fg = normal_fg_color_value, bg = normal_bg_color_value } }
