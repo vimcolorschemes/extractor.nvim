@@ -1,12 +1,13 @@
 # vimcolorschemes/extractor.nvim
 
-This is a simple plugin to extract color groups from a neovim buffer. It's used
-in the context of [vimcolorschemes.com](https://vimcolorschemes.com) to extract
-color data from a vim colorscheme and generate a preview.
+This plugin is used to extract color group data from a neovim buffer in the
+context of [vimcolorschemes.com](https://vimcolorschemes.com) in the objective
+of generating previews for colorschemes.
 
 ## Requirements
 
-* vim syntax highlighting (not treesitter)
+* vim syntax highlighting
+* treesitter disabled
 
 ## Installation
 
