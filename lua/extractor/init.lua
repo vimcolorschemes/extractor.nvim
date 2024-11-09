@@ -10,6 +10,8 @@ local M = {}
 --- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
 --- @return table The extracted color groups.
 function M.run(output_path, background)
+  M.setup(background)
+
   print(
     "Extracting color groups..."
       .. (output_path and " to " .. output_path or "")
@@ -56,6 +58,13 @@ function M.run(output_path, background)
   print(json)
 
   return color_groups
+end
+
+--- Sets up the environment for the extractor.
+function M.setup(background)
+  vim.cmd("syntax on")
+  vim.o.termguicolors = true
+  vim.o.background = background or "dark"
 end
 
 return M
