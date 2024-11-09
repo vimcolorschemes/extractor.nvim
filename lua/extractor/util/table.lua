@@ -18,6 +18,9 @@ function M.insert_if_not_exists(t, v)
   end
 end
 
+--- Convert a table to a JSON string.
+--- @param t table The table to convert to a JSON string.
+--- @return string The encoded JSON string.
 function M.to_json(t)
   return vim.fn.json_encode(t)
 end
