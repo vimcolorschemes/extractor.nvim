@@ -9,7 +9,7 @@ local M = {}
 --- @param output_path string The path to write the extracted color groups to. Optional.
 --- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
 --- @return table The extracted color groups.
-function M.run(output_path, background)
+function M.extract(output_path, background)
   M.setup()
 
   print(
@@ -60,6 +60,20 @@ function M.run(output_path, background)
   M.post_setup()
 
   return color_groups
+end
+
+--- Returns a list of installed custom colorschemes.
+--- @param output_path string The path to write the extracted color groups to. Optional.
+--- @return table The extracted color groups.
+function M.colorschemes(output_path)
+  local colorschemes = Vim.get_colorschemes()
+  local json = Table.to_json(colorschemes)
+  print("Installed colorschemes: " .. json)
+  if output_path then
+    System.write(output_path, json)
+    print("Installed colorschemes extracted to " .. output_path)
+  end
+  return colorschemes
 end
 
 --- Sets up the environment for the extractor.

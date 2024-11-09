@@ -19,6 +19,12 @@ color data from a vim colorscheme and generate a preview.
 
 ## Usage
 
+### Extract colorscheme groups
+
 Returns a lua table with the color groups found in the buffer + some extra.
 
-`:Extractor`
+`:VCSExtract [{output_path}] [{background}]`
+
+### List installed colorschemes
+
+`:VCSColorschemes`

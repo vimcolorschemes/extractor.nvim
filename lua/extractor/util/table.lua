@@ -13,7 +13,7 @@ end
 --- @param t table The table to insert the element into.
 --- @param v any The element to insert into the table.
 function M.insert_if_not_exists(t, v)
-  if not vim.tbl_contains(t, v) then
+  if not M.contains(t, v) then
     table.insert(t, v)
   end
 end
@@ -23,6 +23,14 @@ end
 --- @return string The encoded JSON string.
 function M.to_json(t)
   return vim.fn.json_encode(t)
+end
+
+--- Checks if an item exists in a table.
+--- @param t table The table to check.
+--- @param item any The item to check for.
+--- @return boolean Whether the item exists in the table.
+function M.contains(t, item)
+  return vim.tbl_contains(t, item)
 end
 
 return M
