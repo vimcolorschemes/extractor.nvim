@@ -1,4 +1,4 @@
-*extractor.nvim.txt*          For NVIM v0.8.0         Last change: 2024 May 24
+*extractor.nvim.txt*       For NVIM v0.8.0       Last change: 2024 November 09
 
 ==============================================================================
 Table of Contents                           *extractor.nvim-table-of-contents*
