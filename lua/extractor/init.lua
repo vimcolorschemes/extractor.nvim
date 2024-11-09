@@ -10,13 +10,21 @@ local M = {}
 --- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
 --- @return table The extracted color groups.
 function M.run(output_path, background)
+  print(
+    "Extracting color groups..."
+      .. (output_path and " to " .. output_path or "")
+      .. (background and " with background " .. background or "")
+  )
+
   local colorscheme_name = Vim.get_colorscheme_name()
   if not colorscheme_name or colorscheme_name == "default" then
     error("Colorscheme failed to configure.")
   end
 
   local color_group_names = Vim.get_color_group_names_in_buffer()
+  print("Color groups in the current buffer: " .. Table.to_json(color_group_names))
   Table.insert_many(color_group_names, "StatusLine", "Cursor", "LineNr", "CursorLine", "CursorLineNr")
+  print("Total color groups: " .. Table.to_json(color_group_names))
 
   local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
   local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
@@ -38,10 +46,14 @@ function M.run(output_path, background)
     table.insert(color_groups, color_group)
   end
 
+  local json = Table.to_json(color_groups)
+
   if output_path then
-    local json = Table.to_json(color_groups)
     System.write(output_path, json)
+    print("Color groups extracted to " .. output_path)
   end
+
+  print(json)
 
   return color_groups
 end
