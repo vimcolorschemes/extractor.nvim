@@ -36,43 +36,57 @@ function M.extract(output_path)
   local data = {}
 
   for _, colorscheme in ipairs(colorschemes) do
-    local success, err = pcall(function()
+    pcall(function()
       vim.cmd("silent! colorscheme " .. colorscheme)
     end)
-    if not success then
-      print("Failed to load colorscheme " .. colorscheme .. ": " .. err)
+
+    local configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
+
+    if configured_colorscheme ~= colorscheme then
+      print(colorscheme .. " changed into " .. configured_colorscheme)
+    end
+
+    if Vim.is_default_colorscheme(configured_colorscheme) then
+      print(configured_colorscheme .. " is a default colorscheme.")
       goto next_colorscheme
     end
 
     for _, background in ipairs({ "light", "dark" }) do
-      success, err = pcall(function()
+      pcall(function()
         vim.cmd("set background=" .. background)
       end)
-      if not success then
-        print("Failed to set background to " .. background .. ": " .. err)
+      local configured_background = vim.o.background
+      if configured_background ~= background then
+        print("Failed to set background to " .. background)
         goto next_background
       end
 
-      print("Extracting color groups for colorscheme " .. colorscheme .. " with background " .. background .. "...")
+      print(
+        "Extracting color groups for colorscheme "
+          .. configured_colorscheme
+          .. " with background "
+          .. background
+          .. "..."
+      )
 
       local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
 
       local current_background = Color.is_light(normal_bg_color_value) and "light" or "dark"
 
       if background ~= current_background then
-        print(colorscheme .. " has no " .. background .. " background.")
+        print(configured_colorscheme .. " has no " .. background .. " background.")
         goto next_background
       end
 
-      data[colorscheme] = data[colorscheme] or {}
-      data[colorscheme][background] = data[colorscheme][background] or {}
+      data[configured_colorscheme] = data[configured_colorscheme] or {}
+      data[configured_colorscheme][background] = data[configured_colorscheme][background] or {}
 
       local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
 
       for _, color_group_name in ipairs(color_group_names) do
         local fg_color_value = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value
         local bg_color_value = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value
-        data[colorscheme][background][color_group_name] = { fg = fg_color_value, bg = bg_color_value }
+        data[configured_colorscheme][background][color_group_name] = { fg = fg_color_value, bg = bg_color_value }
       end
 
       ::next_background::

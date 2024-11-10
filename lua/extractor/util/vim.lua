@@ -140,4 +140,11 @@ function M.get_colorschemes()
   return colorschemes
 end
 
+--- Check if the colorscheme is one of the default colorschemes.
+--- @param colorscheme string The name of the colorscheme.
+--- @return boolean is_default_colorscheme True if the colorscheme is one of the default colorschemes.
+function M.is_default_colorscheme(colorscheme)
+  return Table.contains(DEFAULT_COLORSCHEMES, colorscheme)
+end
+
 return M
