@@ -5,61 +5,80 @@ local Vim = require("extractor.util.vim")
 
 local M = {}
 
---- Extracts the color groups from the current buffer, and returns them as a table.
+local DEFAULT_COLOR_GROUP_NAMES = {
+  "Normal",
+  "StatusLine",
+  "Cursor",
+  "LineNr",
+  "CursorLine",
+  "CursorLineNr",
+}
+
+--- For each installed colorscheme, try both light and dark backgrounds, then
+--- extracts the color groups and writes them to a file.
 --- @param output_path string The path to write the extracted color groups to. Optional.
---- @param background string The expected background value of the colorscheme. An error will be thrown if the background value of the colorscheme does not match this value. Optional.
---- @return table The extracted color groups.
-function M.extract(output_path, background)
-  M.setup()
-
-  print(
-    "Extracting color groups..."
-      .. (output_path and " to " .. output_path or "")
-      .. (background and " with background " .. background or "")
-  )
-
-  local colorscheme_name = Vim.get_colorscheme_name()
-  if not colorscheme_name or colorscheme_name == "default" then
-    error("Colorscheme failed to configure.")
+function M.extract(output_path)
+  print("Starting color group extraction...")
+  if output_path then
+    print("Output path: " .. output_path)
   end
+
+  local colorschemes = Vim.get_colorschemes()
+  if #colorschemes == 0 then
+    error("No custom colorschemes found.")
+  end
+  print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
+
+  local initial_colorscheme = vim.fn.execute("colorscheme")
 
   local color_group_names = Vim.get_color_group_names_in_buffer()
-  print("Color groups in the current buffer: " .. Table.to_json(color_group_names))
-  Table.insert_many(color_group_names, "StatusLine", "Cursor", "LineNr", "CursorLine", "CursorLineNr")
-  print("Total color groups: " .. Table.to_json(color_group_names))
+  Table.insert_many(color_group_names, unpack(DEFAULT_COLOR_GROUP_NAMES))
+  print("Color groups to analyze: " .. Table.to_json(color_group_names))
 
-  local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
-  local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
+  local data = {}
 
-  if background == "light" and not Color.is_light(normal_bg_color_value) then
-    error("The background of the colorscheme is not light as expected.")
+  for _, colorscheme in ipairs(colorschemes) do
+    vim.cmd("colorscheme " .. colorscheme)
+
+    for _, background in ipairs({ "light", "dark" }) do
+      vim.o.background = background
+
+      print("Extracting color groups for colorscheme " .. colorscheme .. " with background " .. background .. "...")
+
+      local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
+
+      local current_background = Color.is_light(normal_bg_color_value) and "light" or "dark"
+
+      if background ~= current_background then
+        print(colorscheme .. " has no " .. background .. " background.")
+        goto continue
+      end
+
+      data[colorscheme] = data[colorscheme] or {}
+      data[colorscheme][background] = data[colorscheme][background] or {}
+
+      local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
+
+      for _, color_group_name in ipairs(color_group_names) do
+        local fg_color_value = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value
+        local bg_color_value = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value
+        data[colorscheme][background][color_group_name] = { fg = fg_color_value, bg = bg_color_value }
+      end
+
+      ::continue::
+    end
   end
 
-  if background == "dark" and Color.is_light(normal_bg_color_value) then
-    error("The background of the colorscheme is not dark as expected.")
-  end
-
-  local color_groups = { { name = "Normal", fg = normal_fg_color_value, bg = normal_bg_color_value } }
-
-  for _, color_group_name in ipairs(color_group_names) do
-    local fg_color_value = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value
-    local bg_color_value = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value
-    local color_group = { name = color_group_name, fg = fg_color_value, bg = bg_color_value }
-    table.insert(color_groups, color_group)
-  end
-
-  local json = Table.to_json(color_groups)
+  local json = Table.to_json(data)
 
   if output_path then
     System.write(output_path, json)
     print("Color groups extracted to " .. output_path)
   end
 
-  print(json)
+  vim.cmd("colorscheme " .. initial_colorscheme)
 
-  M.post_setup()
-
-  return color_groups
+  print("Result: " .. json)
 end
 
 --- Returns a list of installed custom colorschemes.
@@ -74,25 +93,6 @@ function M.colorschemes(output_path)
     print("Installed colorschemes extracted to " .. output_path)
   end
   return colorschemes
-end
-
---- Sets up the environment for the extractor.
-function M.setup()
-  vim.cmd("syntax on")
-  vim.o.termguicolors = true
-
-  -- disable treesitter highlighting
-  if vim.fn.exists(":TSBufDisable") == 2 then
-    vim.cmd("TSBufDisable highlight")
-  end
-end
-
--- Post setup actions.
-function M.post_setup()
-  -- enable treesitter highlighting again
-  if vim.fn.exists(":TSBufEnable") == 2 then
-    vim.cmd("TSBufEnable highlight")
-  end
 end
 
 return M
