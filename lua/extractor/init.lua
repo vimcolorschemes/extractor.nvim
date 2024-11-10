@@ -38,10 +38,22 @@ function M.extract(output_path)
   local data = {}
 
   for _, colorscheme in ipairs(colorschemes) do
-    vim.cmd("colorscheme " .. colorscheme)
+    local success, err = pcall(function()
+      vim.cmd("silent! colorscheme " .. colorscheme)
+    end)
+    if not success then
+      print("Failed to load colorscheme " .. colorscheme .. ": " .. err)
+      goto next_colorscheme
+    end
 
     for _, background in ipairs({ "light", "dark" }) do
-      vim.o.background = background
+      success, err = pcall(function()
+        vim.cmd("set background=" .. background)
+      end)
+      if not success then
+        print("Failed to set background to " .. background .. ": " .. err)
+        goto next_background
+      end
 
       print("Extracting color groups for colorscheme " .. colorscheme .. " with background " .. background .. "...")
 
@@ -51,7 +63,7 @@ function M.extract(output_path)
 
       if background ~= current_background then
         print(colorscheme .. " has no " .. background .. " background.")
-        goto continue
+        goto next_background
       end
 
       data[colorscheme] = data[colorscheme] or {}
@@ -65,8 +77,9 @@ function M.extract(output_path)
         data[colorscheme][background][color_group_name] = { fg = fg_color_value, bg = bg_color_value }
       end
 
-      ::continue::
+      ::next_background::
     end
+    ::next_colorscheme::
   end
 
   local json = Table.to_json(data)
@@ -76,7 +89,9 @@ function M.extract(output_path)
     print("Color groups extracted to " .. output_path)
   end
 
-  vim.cmd("colorscheme " .. initial_colorscheme)
+  pcall(function()
+    vim.cmd("silent! colorscheme " .. initial_colorscheme)
+  end)
 
   print("Result: " .. json)
 end

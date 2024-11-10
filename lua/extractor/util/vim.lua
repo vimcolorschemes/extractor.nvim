@@ -120,6 +120,9 @@ local DEFAULT_COLORSCHEMES = {
   "zaibatsu",
   "zellner",
   "wildcharm",
+  "example",
+  "module_injection",
+  "tick_tock",
 }
 
 --- Return a list of installed colorschemes, excluding the default list.
