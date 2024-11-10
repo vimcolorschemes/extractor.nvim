@@ -29,8 +29,6 @@ function M.extract(output_path)
   end
   print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
 
-  local initial_colorscheme = vim.fn.execute("colorscheme")
-
   local color_group_names = Vim.get_color_group_names_in_buffer()
   Table.insert_many(color_group_names, unpack(DEFAULT_COLOR_GROUP_NAMES))
   print("Color groups to analyze: " .. Table.to_json(color_group_names))
@@ -88,10 +86,6 @@ function M.extract(output_path)
     System.write(output_path, json)
     print("Color groups extracted to " .. output_path)
   end
-
-  pcall(function()
-    vim.cmd("silent! colorscheme " .. initial_colorscheme)
-  end)
 
   print("Result: " .. json)
 end
