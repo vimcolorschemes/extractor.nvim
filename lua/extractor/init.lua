@@ -17,17 +17,12 @@ end
 --- extracts the color groups and writes them to a file.
 --- @param output_path string The path to write the extracted color groups to. Optional.
 function M.extract(output_path)
-  print("Starting color group extraction...")
-
   local colorschemes = Vim.get_colorschemes()
   if not is_colorschemes_valid(colorschemes) then
     error("No valid colorschemes.")
   end
 
-  print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
-
   local color_group_names = Vim.get_color_group_names()
-  print("Color groups to analyze: " .. Table.to_json(color_group_names))
 
   local data = {}
 
@@ -39,7 +34,6 @@ function M.extract(output_path)
     local configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
 
     if configured_colorscheme ~= colorscheme then
-      print(colorscheme .. " is not a valid colorscheme.")
       goto next_colorscheme
     end
 
@@ -49,24 +43,14 @@ function M.extract(output_path)
       end)
       local configured_background = vim.o.background
       if configured_background ~= background then
-        print("Failed to set background to " .. background)
         goto next_background
       end
-
-      print(
-        "Extracting color groups for colorscheme "
-          .. configured_colorscheme
-          .. " with background "
-          .. background
-          .. "..."
-      )
 
       local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
 
       local current_background = Color.is_light(normal_bg_color_value) and "light" or "dark"
 
       if background ~= current_background then
-        print(configured_colorscheme .. " has no " .. background .. " background.")
         goto next_background
       end
 
@@ -91,9 +75,6 @@ function M.extract(output_path)
 
   if is_output_path_valid(output_path) then
     System.write(output_path, json)
-    print("Color groups extracted to " .. output_path)
-  else
-    print("Result: " .. json)
   end
 end
 
@@ -103,10 +84,8 @@ end
 function M.colorschemes(output_path)
   local colorschemes = Vim.get_colorschemes()
   local json = Table.to_json(colorschemes)
-  print("Installed colorschemes: " .. json)
   if is_output_path_valid(output_path) then
     System.write(output_path, json)
-    print("Installed colorschemes extracted to " .. output_path)
   end
   return colorschemes
 end
