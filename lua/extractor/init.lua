@@ -92,9 +92,9 @@ function M.extract(output_path)
   if is_output_path_valid(output_path) then
     System.write(output_path, json)
     print("Color groups extracted to " .. output_path)
+  else
+    print("Result: " .. json)
   end
-
-  print("Result: " .. json)
 end
 
 --- Returns a list of installed colorschemes.
