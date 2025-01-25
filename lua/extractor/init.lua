@@ -15,18 +15,13 @@ end
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
---- @param colorschemes string[] The colorschemes to extract the color groups from.
 --- @param output_path string The path to write the extracted color groups to. Optional.
-function M.extract(colorschemes, output_path)
+function M.extract(output_path)
   print("Starting color group extraction...")
-  if is_output_path_valid(output_path) then
-    print("Output path: " .. output_path)
-  else
-    output_path = ""
-  end
 
+  local colorschemes = Vim.get_colorschemes()
   if not is_colorschemes_valid(colorschemes) then
-    error("Invalid colorschemes parameter.")
+    error("No valid colorschemes.")
   end
 
   print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
@@ -94,7 +89,7 @@ function M.extract(colorschemes, output_path)
 
   local json = Table.to_json(data)
 
-  if output_path ~= "" then
+  if is_output_path_valid(output_path) then
     System.write(output_path, json)
     print("Color groups extracted to " .. output_path)
   end
@@ -102,9 +97,9 @@ function M.extract(colorschemes, output_path)
   print("Result: " .. json)
 end
 
---- Returns a list of installed custom colorschemes.
+--- Returns a list of installed colorschemes.
 --- @param output_path string The path to write the extracted color groups to. Optional.
---- @return table The extracted color groups.
+--- @return table The colorschemes.
 function M.colorschemes(output_path)
   local colorschemes = Vim.get_colorschemes()
   local json = Table.to_json(colorschemes)
