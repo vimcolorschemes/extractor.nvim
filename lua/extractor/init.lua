@@ -6,7 +6,11 @@ local Vim = require("extractor.util.vim")
 local M = {}
 
 local function is_colorschemes_valid(colorschemes)
-  return #colorschemes > 0 and type(colorschemes) == "table"
+  return type(colorschemes) == "table" and #colorschemes > 0
+end
+
+local function is_output_path_valid(output_path)
+  return type(output_path) == "string" and #output_path > 0
 end
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
@@ -15,8 +19,10 @@ end
 --- @param output_path string The path to write the extracted color groups to. Optional.
 function M.extract(colorschemes, output_path)
   print("Starting color group extraction...")
-  if output_path then
+  if is_output_path_valid(output_path) then
     print("Output path: " .. output_path)
+  else
+    output_path = ""
   end
 
   if not is_colorschemes_valid(colorschemes) then
@@ -88,7 +94,7 @@ function M.extract(colorschemes, output_path)
 
   local json = Table.to_json(data)
 
-  if output_path then
+  if output_path ~= "" then
     System.write(output_path, json)
     print("Color groups extracted to " .. output_path)
   end
@@ -103,7 +109,7 @@ function M.colorschemes(output_path)
   local colorschemes = Vim.get_colorschemes()
   local json = Table.to_json(colorschemes)
   print("Installed colorschemes: " .. json)
-  if output_path then
+  if is_output_path_valid(output_path) then
     System.write(output_path, json)
     print("Installed colorschemes extracted to " .. output_path)
   end
