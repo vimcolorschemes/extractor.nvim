@@ -24,8 +24,8 @@ of generating previews for colorschemes.
 
 Returns a lua table with the color groups found in the buffer + some extra.
 
-`:VCSExtract [{output_path}] [{background}]`
+`:VCSExtract [{colorschemes}] [{output_path}]`
 
 ### List installed colorschemes
 
-`:VCSColorschemes`
+`:VCSColorschemes [{output_path}]`

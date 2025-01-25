@@ -36,6 +36,20 @@ function M.get_columns(line)
   return columns
 end
 
+--- Return all unique color groups of the text in the current buffer, as well
+--- as some default ones.
+--- @return table color_group_names The list of color groups.
+function M.get_color_group_names()
+  local color_group_names = M.get_color_group_names_in_buffer()
+  table.insert(color_group_names, "Normal")
+  table.insert(color_group_names, "StatusLine")
+  table.insert(color_group_names, "Cursor")
+  table.insert(color_group_names, "LineNr")
+  table.insert(color_group_names, "CursorLine")
+  table.insert(color_group_names, "CursorLineNr")
+  return color_group_names
+end
+
 --- Return all unique color groups of the text in the current buffer.
 --- @return table color_group_names The list of color groups in the buffer.
 function M.get_color_group_names_in_buffer()
@@ -99,9 +113,7 @@ function M.get_colorschemes()
 
   local completions = vim.fn.getcompletion("", "color")
   for _, colorscheme in ipairs(completions) do
-    if not M.is_default_colorscheme(colorscheme) then
-      table.insert(colorschemes, colorscheme)
-    end
+    table.insert(colorschemes, colorscheme)
   end
 
   return colorschemes

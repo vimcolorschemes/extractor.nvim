@@ -5,14 +5,9 @@ local Vim = require("extractor.util.vim")
 
 local M = {}
 
-local DEFAULT_COLOR_GROUP_NAMES = {
-  "Normal",
-  "StatusLine",
-  "Cursor",
-  "LineNr",
-  "CursorLine",
-  "CursorLineNr",
-}
+local function is_colorschemes_valid(colorschemes)
+  return #colorschemes > 0 and type(colorschemes) == "table"
+end
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
@@ -24,13 +19,13 @@ function M.extract(colorschemes, output_path)
     print("Output path: " .. output_path)
   end
 
-  if #colorschemes == 0 then
-    error("No colorschemes given.")
+  if not is_colorschemes_valid(colorschemes) then
+    error("Invalid colorschemes parameter.")
   end
+
   print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
 
-  local color_group_names = Vim.get_color_group_names_in_buffer()
-  Table.insert_many(color_group_names, unpack(DEFAULT_COLOR_GROUP_NAMES))
+  local color_group_names = Vim.get_color_group_names()
   print("Color groups to analyze: " .. Table.to_json(color_group_names))
 
   local data = {}
