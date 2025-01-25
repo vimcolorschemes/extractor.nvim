@@ -92,39 +92,6 @@ function M.get_colorscheme_name()
   return vim.g.colors_name
 end
 
-local DEFAULT_COLORSCHEMES = {
-  "blue",
-  "darkblue",
-  "default",
-  "delek",
-  "desert",
-  "elflord",
-  "evening",
-  "habamax",
-  "industry",
-  "koehler",
-  "lunaperche",
-  "morning",
-  "murphy",
-  "pablo",
-  "peachpuff",
-  "quiet",
-  "retrobox",
-  "ron",
-  "shine",
-  "slate",
-  "sorbet",
-  "torte",
-  "vim",
-  "wildcharm",
-  "zaibatsu",
-  "zellner",
-  "wildcharm",
-  "example",
-  "module_injection",
-  "tick_tock",
-}
-
 --- Return a list of installed colorschemes, excluding the default list.
 --- @return table colorschemes The list of installed colorschemes.
 function M.get_colorschemes()
@@ -132,19 +99,12 @@ function M.get_colorschemes()
 
   local completions = vim.fn.getcompletion("", "color")
   for _, colorscheme in ipairs(completions) do
-    if not Table.contains(DEFAULT_COLORSCHEMES, colorscheme) then
+    if not M.is_default_colorscheme(colorscheme) then
       table.insert(colorschemes, colorscheme)
     end
   end
 
   return colorschemes
-end
-
---- Check if the colorscheme is one of the default colorschemes.
---- @param colorscheme string The name of the colorscheme.
---- @return boolean is_default_colorscheme True if the colorscheme is one of the default colorschemes.
-function M.is_default_colorscheme(colorscheme)
-  return Table.contains(DEFAULT_COLORSCHEMES, colorscheme)
 end
 
 return M

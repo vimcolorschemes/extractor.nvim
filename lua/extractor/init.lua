@@ -16,16 +16,16 @@ local DEFAULT_COLOR_GROUP_NAMES = {
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
+--- @param colorschemes string[] The colorschemes to extract the color groups from.
 --- @param output_path string The path to write the extracted color groups to. Optional.
-function M.extract(output_path)
+function M.extract(colorschemes, output_path)
   print("Starting color group extraction...")
   if output_path then
     print("Output path: " .. output_path)
   end
 
-  local colorschemes = Vim.get_colorschemes()
   if #colorschemes == 0 then
-    error("No custom colorschemes found.")
+    error("No colorschemes given.")
   end
   print("Colorschemes to analyze: " .. Table.to_json(colorschemes))
 
@@ -43,11 +43,7 @@ function M.extract(output_path)
     local configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
 
     if configured_colorscheme ~= colorscheme then
-      print(colorscheme .. " changed into " .. configured_colorscheme)
-    end
-
-    if Vim.is_default_colorscheme(configured_colorscheme) then
-      print(configured_colorscheme .. " is a default colorscheme.")
+      print(colorscheme .. " is not a valid colorscheme.")
       goto next_colorscheme
     end
 
@@ -91,6 +87,7 @@ function M.extract(output_path)
 
       ::next_background::
     end
+
     ::next_colorscheme::
   end
 
