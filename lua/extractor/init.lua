@@ -60,9 +60,15 @@ function M.extract(output_path)
       local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
 
       for _, color_group_name in ipairs(color_group_names) do
-        local fg_color_value = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value
-        local bg_color_value = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value
-        data[configured_colorscheme][background][color_group_name] = { fg = fg_color_value, bg = bg_color_value }
+        table.insert(data[configured_colorscheme][background], {
+          name = color_group_name .. "Fg",
+          hexCode = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value,
+        })
+
+        table.insert(data[configured_colorscheme][background], {
+          name = color_group_name .. "Bg",
+          hexCode = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value,
+        })
       end
 
       ::next_background::
