@@ -92,7 +92,7 @@ function M.get_color_group_value(color_group_name, attribute)
     return nil
   end
 
-  local color_group_value = vim.fn.synIDattr(synID, attribute)
+  local color_group_value = vim.fn.synIDattr(vim.fn.synIDtrans(synID), attribute)
   if color_group_value == "" then
     return nil
   end

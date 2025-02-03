@@ -23,6 +23,7 @@ local function configure_colorscheme(colorscheme)
   if configured_colorscheme ~= colorscheme then
     error("Failed to configure colorscheme: " .. colorscheme)
   end
+  vim.fn.execute("syntax on")
 end
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
