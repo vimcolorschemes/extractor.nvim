@@ -42,6 +42,13 @@ function M.extract(output_path)
   for _, colorscheme in ipairs(colorschemes) do
     for _, background in ipairs({ "light", "dark" }) do
       local success = pcall(function()
+        vim.cmd("set background=" .. background)
+      end)
+      if not success then
+        goto next_background
+      end
+
+      success = pcall(function()
         configure_colorscheme(colorscheme)
       end)
       if not success then
@@ -51,7 +58,6 @@ function M.extract(output_path)
       success = pcall(function()
         vim.cmd("set background=" .. background)
       end)
-
       if not success then
         goto next_background
       end
