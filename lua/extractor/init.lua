@@ -13,6 +13,18 @@ local function is_output_path_valid(output_path)
   return type(output_path) == "string" and #output_path > 0
 end
 
+local function get_current_colorscheme()
+  return vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
+end
+
+local function configure_colorscheme(colorscheme)
+  vim.cmd("silent! colorscheme " .. colorscheme)
+  local configured_colorscheme = get_current_colorscheme()
+  if configured_colorscheme ~= colorscheme then
+    error("Failed to configure colorscheme: " .. colorscheme)
+  end
+end
+
 --- For each installed colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
 --- @param output_path string The path to write the extracted color groups to. Optional.
@@ -27,25 +39,24 @@ function M.extract(output_path)
   local data = {}
 
   for _, colorscheme in ipairs(colorschemes) do
-    pcall(function()
-      vim.cmd("silent! colorscheme " .. colorscheme)
-    end)
-
-    local configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
-    if configured_colorscheme ~= colorscheme then
-      goto next_colorscheme
-    end
-
     for _, background in ipairs({ "light", "dark" }) do
-      pcall(function()
+      local success = pcall(function()
+        configure_colorscheme(colorscheme)
+      end)
+      if not success then
+        goto next_colorscheme
+      end
+
+      success = pcall(function()
         vim.cmd("set background=" .. background)
       end)
 
-      configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
+      if not success then
+        goto next_background
+      end
+
+      local configured_colorscheme = get_current_colorscheme()
       if configured_colorscheme ~= colorscheme then
-        pcall(function()
-          vim.cmd("silent! colorscheme " .. colorscheme)
-        end)
         goto next_background
       end
 
@@ -56,11 +67,8 @@ function M.extract(output_path)
 
       local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
 
-      local is_current_background_light = Color.is_light(normal_bg_color_value)
-      if
-        is_current_background_light and background == "dark"
-        or not is_current_background_light and background == "light"
-      then
+      local current_background = Color.is_light(normal_bg_color_value) and "light" or "dark"
+      if current_background ~= background then
         goto next_background
       end
 
