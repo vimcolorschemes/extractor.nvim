@@ -48,9 +48,11 @@ function M.extract(output_path)
 
       local normal_bg_color_value = Vim.get_color_group_value("Normal", "bg#") or "#000000"
 
-      local current_background = Color.is_light(normal_bg_color_value) and "light" or "dark"
-
-      if background ~= current_background then
+      local is_current_background_light = Color.is_light(normal_bg_color_value)
+      if
+        is_current_background_light and background == "dark"
+        or not is_current_background_light and background == "light"
+      then
         goto next_background
       end
 
