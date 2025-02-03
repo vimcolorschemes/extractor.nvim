@@ -40,7 +40,7 @@ function M.extract(output_path)
   local data = {}
 
   for _, colorscheme in ipairs(colorschemes) do
-    for _, background in ipairs({ "light", "dark" }) do
+    for _, background in ipairs({ "dark", "light" }) do
       local success = pcall(function()
         vim.cmd("set background=" .. background)
       end)
