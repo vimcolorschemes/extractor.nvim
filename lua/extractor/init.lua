@@ -32,7 +32,6 @@ function M.extract(output_path)
     end)
 
     local configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
-
     if configured_colorscheme ~= colorscheme then
       goto next_colorscheme
     end
@@ -41,6 +40,15 @@ function M.extract(output_path)
       pcall(function()
         vim.cmd("set background=" .. background)
       end)
+
+      configured_colorscheme = vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
+      if configured_colorscheme ~= colorscheme then
+        pcall(function()
+          vim.cmd("silent! colorscheme " .. colorscheme)
+        end)
+        goto next_background
+      end
+
       local configured_background = vim.o.background
       if configured_background ~= background then
         goto next_background
