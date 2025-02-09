@@ -13,14 +13,9 @@ local function is_output_path_valid(output_path)
   return type(output_path) == "string" and #output_path > 0
 end
 
-local function get_current_colorscheme()
-  return vim.fn.execute("colorscheme"):match("^%s*(.-)%s*$")
-end
-
 local function configure_colorscheme(colorscheme)
   vim.cmd("silent! colorscheme " .. colorscheme)
-  local configured_colorscheme = get_current_colorscheme()
-  if configured_colorscheme ~= colorscheme then
+  if vim.g.colors_name ~= colorscheme then
     error("Failed to configure colorscheme: " .. colorscheme)
   end
   vim.fn.execute("syntax on")
@@ -62,8 +57,7 @@ function M.extract(output_path)
         goto next_background
       end
 
-      local configured_colorscheme = get_current_colorscheme()
-      if configured_colorscheme ~= colorscheme then
+      if vim.g.colors_name ~= colorscheme then
         goto next_background
       end
 
@@ -79,18 +73,18 @@ function M.extract(output_path)
         goto next_background
       end
 
-      data[configured_colorscheme] = data[configured_colorscheme] or {}
-      data[configured_colorscheme][background] = data[configured_colorscheme][background] or {}
+      data[vim.g.colors_name] = data[vim.g.colors_name] or {}
+      data[vim.g.colors_name][background] = data[vim.g.colors_name][background] or {}
 
       local normal_fg_color_value = Vim.get_color_group_value("Normal", "fg#") or "#ffffff"
 
       for _, color_group_name in ipairs(color_group_names) do
-        table.insert(data[configured_colorscheme][background], {
+        table.insert(data[vim.g.colors_name][background], {
           name = color_group_name .. "Fg",
           hexCode = Vim.get_color_group_value(color_group_name, "fg#") or normal_fg_color_value,
         })
 
-        table.insert(data[configured_colorscheme][background], {
+        table.insert(data[vim.g.colors_name][background], {
           name = color_group_name .. "Bg",
           hexCode = Vim.get_color_group_value(color_group_name, "bg#") or normal_bg_color_value,
         })
