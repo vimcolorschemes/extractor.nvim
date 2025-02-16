@@ -67,6 +67,7 @@ function M.extract(output_path)
   )
 
   local color_group_names = Vim.get_color_group_names()
+  print(vim.inspect(color_group_names))
 
   local data = {}
 
@@ -103,14 +104,12 @@ function M.extract(output_path)
 
       for _, color_group_name in ipairs(color_group_names) do
         local highlight = Vim.get_highlight(color_group_name, mode)
-        table.insert(
-          data[vim.g.colors_name][background],
-          { name = color_group_name .. "Fg", hexCode = highlight ~= nil and highlight.fg or normal_highlight.fg }
-        )
-        table.insert(
-          data[vim.g.colors_name][background],
-          { name = color_group_name .. "Bg", hexCode = highlight ~= nil and highlight.bg or normal_highlight.bg }
-        )
+        if highlight and highlight.fg then
+          table.insert(data[vim.g.colors_name][background], { name = color_group_name .. "Fg", hexCode = highlight.fg })
+        end
+        if highlight and highlight.bg then
+          table.insert(data[vim.g.colors_name][background], { name = color_group_name .. "Bg", hexCode = highlight.bg })
+        end
       end
 
       ::next_background::
