@@ -1,3 +1,5 @@
+local TermColor = require("extractor.util.term_color")
+
 local M = {}
 
 --- Checks wheter a color is considered to be light or dark.
@@ -19,6 +21,20 @@ end
 function M.hex_to_rgb(hex)
   hex = hex:gsub("#", "")
   return tonumber("0x" .. hex:sub(1, 2)), tonumber("0x" .. hex:sub(3, 4)), tonumber("0x" .. hex:sub(5, 6))
+end
+
+--- Converts an 256 color to a hex color.
+--- @param color number The 256 color to convert.
+--- @return string|nil The hex color.
+function M.term_to_hex(color)
+  return TermColor.term_to_hex_mapping[tostring(color)]
+end
+
+--- Converts a decimal RGB color to a hex color.
+--- @param color number The decimal RGB color to convert.
+--- @return string The hex color.
+function M.decimal_rgb_to_hex(color)
+  return string.format("#%06X", color)
 end
 
 return M

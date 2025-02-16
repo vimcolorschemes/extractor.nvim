@@ -1,4 +1,5 @@
 local Table = require("extractor.util.table")
+local Color = require("extractor.util.color")
 
 local M = {}
 
@@ -82,41 +83,54 @@ function M.get_color_group_name_at(col, line)
   return color_group_name
 end
 
---- Return the value of the color group.
---- @param color_group_name string The name of the color group.
---- @param attribute string The attribute of the color group. Can be "fg#" or "bg#".
---- @return string|nil color_group_value The value of the color group.
-function M.get_color_group_value(color_group_name, attribute)
-  local synID = vim.fn.hlID(color_group_name)
-  if synID == 0 then
-    return nil
-  end
-
-  local color_group_value = vim.fn.synIDattr(vim.fn.synIDtrans(synID), attribute)
-  if color_group_value == "" then
-    return nil
-  end
-
-  return color_group_value
-end
-
---- Return the name of the current colorscheme.
---- @return string colorscheme_name The name of the current colorscheme.
-function M.get_colorscheme_name()
-  return vim.g.colors_name
-end
-
---- Return a list of installed colorschemes, excluding the default list.
+--- Return a list of installed colorschemes, excluding the default colorscheme.
 --- @return table colorschemes The list of installed colorschemes.
 function M.get_colorschemes()
   local colorschemes = {}
 
   local completions = vim.fn.getcompletion("", "color")
   for _, colorscheme in ipairs(completions) do
-    table.insert(colorschemes, colorscheme)
+    if colorscheme ~= "default" then
+      table.insert(colorschemes, colorscheme)
+    end
   end
 
   return colorschemes
 end
+
+--- Returns the color group data including the fg and bg colors.
+--- @param group string The group name.
+--- @param mode "cterm"|"gui" The mode to get the colors in.
+--- @return table|nil The highlight colors.
+function M.get_highlight(group, mode)
+  local highlight = vim.api.nvim_get_hl(0, { name = group, link = false })
+  if highlight == nil then
+    return nil
+  end
+
+  local is_cterm_defined = highlight.ctermfg ~= nil or highlight.ctermbg ~= nil
+  if mode == "cterm" and is_cterm_defined then
+    return {
+      fg = highlight.ctermfg ~= nil and Color.term_to_hex(highlight.ctermfg) or nil,
+      bg = highlight.ctermbg ~= nil and Color.term_to_hex(highlight.ctermbg) or nil,
+    }
+  end
+
+  if mode == "cterm" then
+    return nil
+  end
+
+  local is_gui_defined = highlight.fg ~= nil or highlight.bg ~= nil
+  if is_gui_defined then
+    return {
+      fg = highlight.fg ~= nil and Color.decimal_rgb_to_hex(highlight.fg) or nil,
+      bg = highlight.bg ~= nil and Color.decimal_rgb_to_hex(highlight.bg) or nil,
+    }
+  end
+
+  return nil
+end
+
+function M.is_colorscheme_cterm() end
 
 return M
