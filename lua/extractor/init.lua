@@ -46,28 +46,30 @@ end
 --- @param output_path string The path to write the extracted color groups to. Optional.
 function M.extract(output_path)
   local colorschemes = Vim.get_colorschemes()
-  assert(is_colorschemes_valid(colorschemes), "No valid colorschemes.")
+  if not is_colorschemes_valid(colorschemes) then
+    print("No colorschemes found.")
+    return
+  end
 
   set_colorscheme("default")
   set_background("dark")
 
   local default_dark_normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  assert(
-    default_dark_normal_highlight and default_dark_normal_highlight.fg and default_dark_normal_highlight.bg,
-    "Failed to get default normal highlight."
-  )
+  if default_dark_normal_highlight == nil then
+    print("Failed to get default normal highlight.")
+    return
+  end
 
   set_colorscheme("default")
   set_background("light")
 
   local default_light_normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  assert(
-    default_light_normal_highlight and default_light_normal_highlight.fg and default_light_normal_highlight.bg,
-    "Failed to get default normal highlight."
-  )
+  if default_light_normal_highlight == nil then
+    print("Failed to get default normal highlight.")
+    return
+  end
 
   local color_group_names = Vim.get_color_group_names()
-  print(vim.inspect(color_group_names))
 
   local data = {}
 
