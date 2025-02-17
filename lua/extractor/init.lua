@@ -101,16 +101,16 @@ function M.extract(output_path)
         goto next_background
       end
 
-      data[vim.g.colors_name] = data[vim.g.colors_name] or {}
-      data[vim.g.colors_name][background] = data[vim.g.colors_name][background] or {}
+      data[colorscheme] = data[colorscheme] or {}
+      data[colorscheme][background] = data[colorscheme][background] or {}
 
       for _, color_group_name in ipairs(color_group_names) do
         local highlight = Vim.get_highlight(color_group_name, mode)
         if highlight and highlight.fg then
-          table.insert(data[vim.g.colors_name][background], { name = color_group_name .. "Fg", hexCode = highlight.fg })
+          table.insert(data[colorscheme][background], { name = color_group_name .. "Fg", hexCode = highlight.fg })
         end
         if highlight and highlight.bg then
-          table.insert(data[vim.g.colors_name][background], { name = color_group_name .. "Bg", hexCode = highlight.bg })
+          table.insert(data[colorscheme][background], { name = color_group_name .. "Bg", hexCode = highlight.bg })
         end
       end
 
