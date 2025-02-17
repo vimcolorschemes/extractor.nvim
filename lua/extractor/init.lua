@@ -77,12 +77,11 @@ function M.extract(output_path)
     for _, background in ipairs({ "dark", "light" }) do
       set_background(background)
       set_colorscheme(colorscheme)
+      -- Set twice to ensure no leftover settings from previous backgrounds.
+      set_background(background)
       if vim.g.colors_name ~= colorscheme then
         goto next_colorscheme
       end
-
-      -- Set twice to ensure no leftover settings from previous backgrounds.
-      set_background(background)
       if vim.o.background ~= background then
         goto next_background
       end
