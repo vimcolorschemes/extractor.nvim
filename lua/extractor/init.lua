@@ -34,11 +34,11 @@ end
 local function is_colorscheme_cterm(excluded_highlight)
   local normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 
-  if normal_highlight.ctermfg == nil or normal_highlight.ctermbg == nil then
+  if normal_highlight.fg ~= excluded_highlight.fg or normal_highlight.bg ~= excluded_highlight.bg then
     return false
   end
 
-  return normal_highlight.fg == excluded_highlight.fg or normal_highlight.bg == excluded_highlight.bg
+  return normal_highlight.ctermfg ~= nil or normal_highlight.ctermbg ~= nil
 end
 
 --- For each installed colorscheme, try both light and dark backgrounds, then
