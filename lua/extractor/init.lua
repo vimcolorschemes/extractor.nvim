@@ -89,7 +89,7 @@ function M.extract(output_path)
       -- Set twice to ensure no leftover settings from previous backgrounds.
       set_background(background)
       if vim.g.colors_name ~= colorscheme then
-        goto next_colorscheme
+        goto next_background
       end
       if vim.o.background ~= background then
         goto next_background
@@ -128,8 +128,6 @@ function M.extract(output_path)
 
       ::next_background::
     end
-
-    ::next_colorscheme::
   end
 
   local json = Table.to_json(data)
