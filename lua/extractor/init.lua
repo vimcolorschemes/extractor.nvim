@@ -41,6 +41,15 @@ local function is_colorscheme_cterm(excluded_highlight)
   return normal_highlight.ctermfg ~= nil or normal_highlight.ctermbg ~= nil
 end
 
+--- Checks if the current colorscheme is excluded. This is determined by checking
+--- if the normal highlight share the same colors as the default colorscheme.
+--- @param excluded_highlight table The highlight to exclude.
+--- @return boolean
+local function is_colorscheme_excluded(excluded_highlight)
+  local normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  return normal_highlight.fg == excluded_highlight.fg and normal_highlight.bg == excluded_highlight.bg
+end
+
 --- For each installed colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
 --- @param output_path string The path to write the extracted color groups to. Optional.
@@ -89,6 +98,10 @@ function M.extract(output_path)
       local excluded_highlight = background == "dark" and default_dark_normal_highlight
         or default_light_normal_highlight
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
+
+      if is_colorscheme_excluded(excluded_highlight) then
+        goto next_background
+      end
 
       local normal_highlight = Vim.get_highlight("Normal", mode)
       if normal_highlight == nil or normal_highlight.fg == nil or normal_highlight.bg == nil then
