@@ -145,11 +145,6 @@ function M.extract(output_path)
     end
   end
 
-  if #data == 0 then
-    print("No colors extracted.")
-    return
-  end
-
   local json = Table.to_json(data)
 
   if is_output_path_valid(output_path) then
