@@ -89,9 +89,11 @@ function M.extract(output_path)
       -- Set twice to ensure no leftover settings from previous backgrounds.
       set_background(background)
       if vim.g.colors_name ~= colorscheme then
+        print("Failed to set colorscheme: " .. colorscheme)
         goto next_background
       end
       if vim.o.background ~= background then
+        print("Failed to set background: " .. background)
         goto next_background
       end
 
@@ -100,16 +102,19 @@ function M.extract(output_path)
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
 
       if is_colorscheme_excluded(excluded_highlight) then
+        print("Colorscheme is equal to default")
         goto next_background
       end
 
       local normal_highlight = Vim.get_highlight("Normal", mode)
       if normal_highlight == nil or normal_highlight.fg == nil or normal_highlight.bg == nil then
+        print("Failed to get normal highlight.")
         goto next_background
       end
 
       local current_background = Color.is_light(normal_highlight.bg) and "light" or "dark"
       if current_background ~= background then
+        print("Background color does not match: " .. current_background .. " vs " .. background)
         goto next_background
       end
 
