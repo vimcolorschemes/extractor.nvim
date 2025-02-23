@@ -105,7 +105,7 @@ function M.extract(output_path)
         or default_light_normal_highlight
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
 
-      if is_colorscheme_excluded(excluded_highlight) then
+      if mode == "gui" and is_colorscheme_excluded(excluded_highlight) then
         print("Colorscheme is equal to default")
         goto next_background
       end
