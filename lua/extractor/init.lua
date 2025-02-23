@@ -88,6 +88,8 @@ function M.extract(output_path)
 
   for _, colorscheme in ipairs(colorschemes) do
     for _, background in ipairs({ "dark", "light" }) do
+      print("Extracting colorscheme: " .. colorscheme .. " with background: " .. background)
+
       set_background(background)
       set_colorscheme(colorscheme)
       -- Set twice to ensure no leftover settings from previous backgrounds.
@@ -104,6 +106,8 @@ function M.extract(output_path)
       local excluded_highlight = background == "dark" and default_dark_normal_highlight
         or default_light_normal_highlight
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
+
+      print("Mode: " .. mode)
 
       if mode == "gui" and is_colorscheme_excluded(excluded_highlight) then
         print("Colorscheme is equal to default")
@@ -134,6 +138,8 @@ function M.extract(output_path)
           table.insert(data[colorscheme][background], { name = color_group_name .. "Bg", hexCode = highlight.bg })
         end
       end
+
+      print("Extracted " .. #data[colorscheme][background] .. " colors.")
 
       ::next_background::
     end
