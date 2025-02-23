@@ -59,6 +59,10 @@ function M.extract(output_path)
     print("No colorschemes found.")
     return
   end
+  if #colorschemes > 100 then
+    print("More than 100 colorschemes found. Not supported.")
+    return
+  end
 
   set_colorscheme("default")
   set_background("dark")
