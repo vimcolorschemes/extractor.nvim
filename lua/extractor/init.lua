@@ -104,7 +104,7 @@ function M.extract(output_path)
       end
 
       local excluded_highlight = background == "dark" and default_dark_normal_highlight
-        or default_light_normal_highlight
+          or default_light_normal_highlight
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
 
       print("Mode: " .. mode)
@@ -115,9 +115,12 @@ function M.extract(output_path)
       end
 
       local normal_highlight = Vim.get_highlight("Normal", mode)
-      if normal_highlight == nil or normal_highlight.fg == nil or normal_highlight.bg == nil then
+      if normal_highlight == nil then
         print("Failed to get normal highlight.")
         goto next_background
+      else
+        normal_highlight.bg = normal_highlight.bg or background == "dark" and "#000000" or "#FFFFFF"
+        normal_highlight.fg = normal_highlight.fg or background == "dark" and "#FFFFFF" or "#000000"
       end
 
       local current_background = Color.is_light(normal_highlight.bg) and "light" or "dark"

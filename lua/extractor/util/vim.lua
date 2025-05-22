@@ -117,7 +117,7 @@ function M.get_highlight(group, mode)
   end
 
   if mode == "cterm" then
-    return nil
+    return highlight
   end
 
   local is_gui_defined = highlight.fg ~= nil or highlight.bg ~= nil
@@ -128,7 +128,7 @@ function M.get_highlight(group, mode)
     }
   end
 
-  return nil
+  return highlight
 end
 
 function M.is_colorscheme_cterm() end
