@@ -50,11 +50,17 @@ local function is_colorscheme_excluded(excluded_highlight)
   return normal_highlight.fg == excluded_highlight.fg and normal_highlight.bg == excluded_highlight.bg
 end
 
---- For each installed colorscheme, try both light and dark backgrounds, then
+--- For each selected colorscheme, try both light and dark backgrounds, then
 --- extracts the color groups and writes them to a file.
---- @param output_path string The path to write the extracted color groups to. Optional.
-function M.extract(output_path)
-  local colorschemes = Vim.get_colorschemes()
+--- @param opts table Optional named parameters.
+--- @field opts.colorschemes table? A list of colorscheme names to extract.
+--- @field opts.output_path string? The path to write the extracted color groups to.
+function M.extract(opts)
+  opts = opts or {}
+  local colorschemes = opts.colorschemes
+  if not is_colorschemes_valid(colorschemes) then
+    colorschemes = Vim.get_colorschemes()
+  end
   if not is_colorschemes_valid(colorschemes) then
     print("No colorschemes found.")
     return
@@ -150,19 +156,21 @@ function M.extract(output_path)
 
   local json = Table.to_json(data)
 
-  if is_output_path_valid(output_path) then
-    System.write(output_path, json)
+  if is_output_path_valid(opts.output_path) then
+    System.write(opts.output_path, json)
   end
 end
 
 --- Returns a list of installed colorschemes.
---- @param output_path string The path to write the extracted color groups to. Optional.
+--- @param opts table Optional named parameters.
+--- @field opts.output_path string? The path to write the extracted colorschemes to.
 --- @return table The colorschemes.
-function M.colorschemes(output_path)
+function M.colorschemes(opts)
+  opts = opts or {}
   local colorschemes = Vim.get_colorschemes()
   local json = Table.to_json(colorschemes)
-  if is_output_path_valid(output_path) then
-    System.write(output_path, json)
+  if is_output_path_valid(opts.output_path) then
+    System.write(opts.output_path, json)
   end
   return colorschemes
 end

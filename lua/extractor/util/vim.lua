@@ -83,16 +83,14 @@ function M.get_color_group_name_at(col, line)
   return color_group_name
 end
 
---- Return a list of installed colorschemes, excluding the default colorscheme.
+--- Return a list of installed colorschemes.
 --- @return table colorschemes The list of installed colorschemes.
 function M.get_colorschemes()
   local colorschemes = {}
 
   local completions = vim.fn.getcompletion("", "color")
   for _, colorscheme in ipairs(completions) do
-    if colorscheme ~= "default" then
-      table.insert(colorschemes, colorscheme)
-    end
+    table.insert(colorschemes, colorscheme)
   end
 
   return colorschemes

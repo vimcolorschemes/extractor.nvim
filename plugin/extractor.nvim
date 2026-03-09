@@ -1,2 +1,2 @@
-command! -nargs=* VCSExtract lua require('extractor').extract(<f-args>)
-command! -nargs=* VCSColorschemes lua require('extractor').colorschemes(<f-args>)
+command! -nargs=* VCSExtract lua require('extractor').extract({ colorschemes = { <f-args> } })
+command! -nargs=? VCSColorschemes lua require('extractor').colorschemes({ output_path = <q-args> ~= "" and <q-args> or nil })

@@ -24,8 +24,25 @@ of generating previews for colorschemes.
 
 Returns a lua table with the color groups found in the buffer + some extra.
 
-`:VCSExtract [{output_path}]`
+`:VCSExtract [colorscheme ...]`
+
+Lua API:
+
+```lua
+require("extractor").extract({
+  colorschemes = { "default", "gruvbox" }, -- optional
+  output_path = "/tmp/extracted.json",      -- optional
+})
+```
 
 ### List installed colorschemes
 
 `:VCSColorschemes [{output_path}]`
+
+Lua API:
+
+```lua
+require("extractor").colorschemes({
+  output_path = "/tmp/colorschemes.json", -- optional
+})
+```
