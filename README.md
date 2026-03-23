@@ -6,8 +6,8 @@ of generating previews for colorschemes.
 
 ## Requirements
 
-* vim syntax highlighting
-* treesitter disabled
+- vim syntax highlighting
+- treesitter disabled
 
 ## Installation
 
@@ -34,6 +34,9 @@ require("extractor").extract({
   output_path = "/tmp/extracted.json",      -- optional
 })
 ```
+
+The extractor tolerates themes that load a variant successfully but normalize
+`vim.g.colors_name` to a canonical base name.
 
 ### List installed colorschemes
 

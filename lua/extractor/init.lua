@@ -26,6 +26,18 @@ local function set_background(background)
   end)
 end
 
+--- Returns true when two highlights describe the same normal colors.
+--- @param left table
+--- @param right table
+--- @return boolean
+local function are_highlights_equal(left, right)
+  if left == nil or right == nil then
+    return false
+  end
+
+  return left.fg == right.fg and left.bg == right.bg and left.ctermfg == right.ctermfg and left.ctermbg == right.ctermbg
+end
+
 --- Checks if the current colorscheme is using cterm colors. This is determined
 --- by checking if the normal highlight share the same gui colors as the
 --- default colorscheme.
@@ -47,7 +59,36 @@ end
 --- @return boolean
 local function is_colorscheme_excluded(excluded_highlight)
   local normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  return normal_highlight.fg == excluded_highlight.fg and normal_highlight.bg == excluded_highlight.bg
+  return are_highlights_equal(normal_highlight, excluded_highlight)
+end
+
+--- Checks whether the requested colorscheme applied successfully.
+--- Some themes normalize vim.g.colors_name to a canonical base name even when a
+--- variant entrypoint was loaded. In that case, fall back to verifying that the
+--- Normal highlight changed from the default palette for the selected
+--- background.
+--- @param colorscheme string The requested colorscheme name.
+--- @param excluded_highlight table The default Normal highlight for the selected background.
+--- @return boolean
+local function is_colorscheme_applied(colorscheme, excluded_highlight)
+  if vim.g.colors_name == colorscheme then
+    return true
+  end
+
+  local normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+  if are_highlights_equal(normal_highlight, excluded_highlight) then
+    return false
+  end
+
+  print(
+    "Colorscheme name mismatch for "
+      .. colorscheme
+      .. ": got "
+      .. tostring(vim.g.colors_name)
+      .. ", accepting changed highlights"
+  )
+
+  return true
 end
 
 --- For each selected colorscheme, try both light and dark backgrounds, then
@@ -96,11 +137,14 @@ function M.extract(opts)
     for _, background in ipairs({ "dark", "light" }) do
       print("Extracting colorscheme: " .. colorscheme .. " with background: " .. background)
 
+      set_colorscheme("default")
       set_background(background)
       set_colorscheme(colorscheme)
       -- Set twice to ensure no leftover settings from previous backgrounds.
       set_background(background)
-      if vim.g.colors_name ~= colorscheme then
+      local excluded_highlight = background == "dark" and default_dark_normal_highlight
+        or default_light_normal_highlight
+      if not is_colorscheme_applied(colorscheme, excluded_highlight) then
         print("Failed to set colorscheme: " .. colorscheme)
         goto next_background
       end
@@ -109,8 +153,6 @@ function M.extract(opts)
         goto next_background
       end
 
-      local excluded_highlight = background == "dark" and default_dark_normal_highlight
-          or default_light_normal_highlight
       local mode = is_colorscheme_cterm(excluded_highlight) and "cterm" or "gui"
 
       print("Mode: " .. mode)
