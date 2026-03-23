@@ -1,4 +1,4 @@
-*extractor.nvim.txt*         For NVIM v0.8.0        Last change: 2026 March 18
+*extractor.nvim.txt*         For NVIM v0.8.0        Last change: 2026 March 23
 
 ==============================================================================
 Table of Contents                           *extractor.nvim-table-of-contents*
@@ -49,6 +49,9 @@ Lua API:
       output_path = "/tmp/extracted.json",      -- optional
     })
 <
+
+The extractor tolerates themes that load a variant successfully but normalize
+`vim.g.colors_name` to a canonical base name.
 
 
 LIST INSTALLED COLORSCHEMES ~
