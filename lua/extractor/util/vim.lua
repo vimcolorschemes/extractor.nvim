@@ -3,6 +3,26 @@ local Color = require("extractor.util.color")
 
 local M = {}
 
+local highlight_attributes = {
+  "bold",
+  "italic",
+  "underline",
+  "undercurl",
+  "underdouble",
+  "underdotted",
+  "underdashed",
+  "strikethrough",
+  "reverse",
+}
+
+local function copy_highlight_attributes(source, target)
+  for _, attribute in ipairs(highlight_attributes) do
+    if source[attribute] ~= nil then
+      target[attribute] = source[attribute]
+    end
+  end
+end
+
 --- Return all the possible cursor positions in line and column for the current buffer.
 --- @return table cursor_positions The list of cursor positions in the buffer.
 function M.get_cursor_positions()
@@ -108,10 +128,12 @@ function M.get_highlight(group, mode)
 
   local is_cterm_defined = highlight.ctermfg ~= nil or highlight.ctermbg ~= nil
   if mode == "cterm" and is_cterm_defined then
-    return {
+    local converted_highlight = {
       fg = highlight.ctermfg ~= nil and Color.term_to_hex(highlight.ctermfg) or nil,
       bg = highlight.ctermbg ~= nil and Color.term_to_hex(highlight.ctermbg) or nil,
     }
+    copy_highlight_attributes(highlight, converted_highlight)
+    return converted_highlight
   end
 
   if mode == "cterm" then
@@ -120,10 +142,12 @@ function M.get_highlight(group, mode)
 
   local is_gui_defined = highlight.fg ~= nil or highlight.bg ~= nil
   if is_gui_defined then
-    return {
+    local converted_highlight = {
       fg = highlight.fg ~= nil and Color.decimal_rgb_to_hex(highlight.fg) or nil,
       bg = highlight.bg ~= nil and Color.decimal_rgb_to_hex(highlight.bg) or nil,
     }
+    copy_highlight_attributes(highlight, converted_highlight)
+    return converted_highlight
   end
 
   return highlight

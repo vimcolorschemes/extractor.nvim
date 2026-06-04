@@ -26,6 +26,16 @@ local function set_background(background)
   end)
 end
 
+local function build_color_group_data(name, hex_code, highlight)
+  local data = { name = name, hexCode = hex_code }
+  for key, value in pairs(highlight) do
+    if type(value) == "boolean" then
+      data[key] = value
+    end
+  end
+  return data
+end
+
 --- Returns true when two highlights describe the same normal colors.
 --- @param left table
 --- @param right table
@@ -183,10 +193,16 @@ function M.extract(opts)
       for _, color_group_name in ipairs(color_group_names) do
         local highlight = Vim.get_highlight(color_group_name, mode)
         if highlight and highlight.fg then
-          table.insert(data[colorscheme][background], { name = color_group_name .. "Fg", hexCode = highlight.fg })
+          table.insert(
+            data[colorscheme][background],
+            build_color_group_data(color_group_name .. "Fg", highlight.fg, highlight)
+          )
         end
         if highlight and highlight.bg then
-          table.insert(data[colorscheme][background], { name = color_group_name .. "Bg", hexCode = highlight.bg })
+          table.insert(
+            data[colorscheme][background],
+            build_color_group_data(color_group_name .. "Bg", highlight.bg, highlight)
+          )
         end
       end
 
