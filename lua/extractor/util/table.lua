@@ -9,6 +9,17 @@ function M.insert_if_not_exists(t, v)
   end
 end
 
+--- Return a copy of a list with duplicate elements removed.
+--- @param t table The list to deduplicate.
+--- @return table The list without duplicates.
+function M.unique(t)
+  local result = {}
+  for _, item in ipairs(t) do
+    M.insert_if_not_exists(result, item)
+  end
+  return result
+end
+
 --- Convert a table to a JSON string.
 --- @param t table The table to convert to a JSON string.
 --- @return string The encoded JSON string.

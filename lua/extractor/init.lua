@@ -10,7 +10,11 @@ local function is_colorschemes_valid(colorschemes)
 end
 
 local function is_output_path_valid(output_path)
-  return type(output_path) == "string" and #output_path > 0
+  if type(output_path) ~= "string" or #output_path == 0 then
+    return false
+  end
+
+  return vim.fn.isdirectory(vim.fn.fnamemodify(output_path, ":h")) == 1
 end
 
 local function set_colorscheme(colorscheme)
@@ -106,42 +110,50 @@ end
 --- @param opts table Optional named parameters.
 --- @field opts.colorschemes table? A list of colorscheme names to extract.
 --- @field opts.output_path string? The path to write the extracted color groups to.
+--- @return table The extracted color groups, keyed by colorscheme name.
 function M.extract(opts)
   opts = opts or {}
+
+  if opts.output_path ~= nil and not is_output_path_valid(opts.output_path) then
+    error("Invalid output path.")
+  end
+
   local colorschemes = opts.colorschemes
-  if not is_colorschemes_valid(colorschemes) then
+  if colorschemes ~= nil and type(colorschemes) ~= "table" then
+    error("Invalid colorschemes list.")
+  end
+
+  if colorschemes == nil or #colorschemes == 0 then
     colorschemes = Vim.get_colorschemes()
   end
+
+  colorschemes = Table.unique(colorschemes)
+
   if not is_colorschemes_valid(colorschemes) then
-    print("No colorschemes found.")
-    return
-  end
-  if #colorschemes > 100 then
-    print("More than 100 colorschemes found. Not supported.")
-    return
+    error("No colorschemes found.")
   end
 
   set_colorscheme("default")
   set_background("dark")
 
   local default_dark_normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  if default_dark_normal_highlight == nil then
-    print("Failed to get default normal highlight.")
-    return
+  if vim.tbl_isempty(default_dark_normal_highlight) then
+    error("Failed to get default dark normal highlight.")
   end
 
   set_colorscheme("default")
   set_background("light")
 
   local default_light_normal_highlight = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-  if default_light_normal_highlight == nil then
-    print("Failed to get default normal highlight.")
-    return
+  if vim.tbl_isempty(default_light_normal_highlight) then
+    error("Failed to get default light normal highlight.")
   end
 
   local color_group_names = Vim.get_color_group_names()
 
-  local data = {}
+  -- Marked as a dict so that an extraction that skipped everything encodes as
+  -- {} rather than [].
+  local data = vim.empty_dict()
 
   for _, colorscheme in ipairs(colorschemes) do
     for _, background in ipairs({ "dark", "light" }) do
@@ -173,13 +185,8 @@ function M.extract(opts)
       end
 
       local normal_highlight = Vim.get_highlight("Normal", mode)
-      if normal_highlight == nil then
-        print("Failed to get normal highlight.")
-        goto next_background
-      else
-        normal_highlight.bg = normal_highlight.bg or background == "dark" and "#000000" or "#FFFFFF"
-        normal_highlight.fg = normal_highlight.fg or background == "dark" and "#FFFFFF" or "#000000"
-      end
+      normal_highlight.bg = normal_highlight.bg or background == "dark" and "#000000" or "#FFFFFF"
+      normal_highlight.fg = normal_highlight.fg or background == "dark" and "#FFFFFF" or "#000000"
 
       local current_background = Color.is_light(normal_highlight.bg) and "light" or "dark"
       if current_background ~= background then
@@ -192,13 +199,13 @@ function M.extract(opts)
 
       for _, color_group_name in ipairs(color_group_names) do
         local highlight = Vim.get_highlight(color_group_name, mode)
-        if highlight and highlight.fg then
+        if highlight.fg then
           table.insert(
             data[colorscheme][background],
             build_color_group_data(color_group_name .. "Fg", highlight.fg, highlight)
           )
         end
-        if highlight and highlight.bg then
+        if highlight.bg then
           table.insert(
             data[colorscheme][background],
             build_color_group_data(color_group_name .. "Bg", highlight.bg, highlight)
@@ -217,6 +224,8 @@ function M.extract(opts)
   if is_output_path_valid(opts.output_path) then
     System.write(opts.output_path, json)
   end
+
+  return data
 end
 
 --- Returns a list of installed colorschemes.
@@ -225,6 +234,11 @@ end
 --- @return table The colorschemes.
 function M.colorschemes(opts)
   opts = opts or {}
+
+  if opts.output_path ~= nil and not is_output_path_valid(opts.output_path) then
+    error("Invalid output path.")
+  end
+
   local colorschemes = Vim.get_colorschemes()
   local json = Table.to_json(colorschemes)
   if is_output_path_valid(opts.output_path) then

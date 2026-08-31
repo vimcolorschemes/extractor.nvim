@@ -116,43 +116,28 @@ function M.get_colorschemes()
   return colorschemes
 end
 
---- Returns the color group data including the fg and bg colors.
+--- Returns the color group data including the fg and bg colors. The colors are
+--- always hex code strings, and only the curated highlight attributes are kept.
 --- @param group string The group name.
 --- @param mode "cterm"|"gui" The mode to get the colors in.
---- @return table|nil The highlight colors.
+--- @return table The highlight colors.
 function M.get_highlight(group, mode)
   local highlight = vim.api.nvim_get_hl(0, { name = group, link = false })
-  if highlight == nil then
-    return nil
-  end
 
-  local is_cterm_defined = highlight.ctermfg ~= nil or highlight.ctermbg ~= nil
-  if mode == "cterm" and is_cterm_defined then
-    local converted_highlight = {
-      fg = highlight.ctermfg ~= nil and Color.term_to_hex(highlight.ctermfg) or nil,
-      bg = highlight.ctermbg ~= nil and Color.term_to_hex(highlight.ctermbg) or nil,
-    }
-    copy_highlight_attributes(highlight, converted_highlight)
-    return converted_highlight
-  end
+  local converted_highlight = {}
 
   if mode == "cterm" then
-    return highlight
-  end
-
-  local is_gui_defined = highlight.fg ~= nil or highlight.bg ~= nil
-  if is_gui_defined then
-    local converted_highlight = {
-      fg = highlight.fg ~= nil and Color.decimal_rgb_to_hex(highlight.fg) or nil,
-      bg = highlight.bg ~= nil and Color.decimal_rgb_to_hex(highlight.bg) or nil,
-    }
-    copy_highlight_attributes(highlight, converted_highlight)
+    copy_highlight_attributes(highlight.cterm or {}, converted_highlight)
+    converted_highlight.fg = highlight.ctermfg ~= nil and Color.term_to_hex(highlight.ctermfg) or nil
+    converted_highlight.bg = highlight.ctermbg ~= nil and Color.term_to_hex(highlight.ctermbg) or nil
     return converted_highlight
   end
 
-  return highlight
-end
+  copy_highlight_attributes(highlight, converted_highlight)
+  converted_highlight.fg = highlight.fg ~= nil and Color.decimal_rgb_to_hex(highlight.fg) or nil
+  converted_highlight.bg = highlight.bg ~= nil and Color.decimal_rgb_to_hex(highlight.bg) or nil
 
-function M.is_colorscheme_cterm() end
+  return converted_highlight
+end
 
 return M
