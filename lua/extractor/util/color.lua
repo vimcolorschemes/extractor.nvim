@@ -27,7 +27,8 @@ end
 --- @param color number The 256 color to convert.
 --- @return string|nil The hex color.
 function M.term_to_hex(color)
-  return TermColor.term_to_hex_mapping[tostring(color)]
+  local hex = TermColor.term_to_hex_mapping[tostring(color)]
+  return hex and hex:upper() or nil
 end
 
 --- Converts a decimal RGB color to a hex color.
