@@ -8,12 +8,13 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     name: README to vimdoc
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
-      - uses: kdheepak/panvimdoc@main
+      - uses: actions/checkout@v5
+      - uses: kdheepak/panvimdoc@v4.0.1
         with:
           vimdoc: extractor.nvim
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "docs: Generate doc/extractor.nvim.txt"
-          branch: ${{ github.head_ref }}
