@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: kdheepak/panvimdoc@v4.0.1
         with:
           vimdoc: extractor.nvim
